@@ -5,6 +5,7 @@ import { escrowMigrationState } from "./services/escrowMigrationState.js";
 import { logger } from "./utils/logger.js";
 
 const _shutdownHooks: Array<() => void> = [];
+
 const config = loadEnvConfig();
 
 // Validate pinned escrow contract hash on startup
@@ -91,7 +92,6 @@ if (process.env.FRAUD_DRIFT_ENABLED === "true") {
 // ─── Subscription Slot Generator Worker ────────────────────────────────────
 // Idempotent background worker that auto-mints recurring slots for active
 // subscriptions. Set SUBSCRIPTION_SLOT_GENERATOR_DISABLED=true to skip.
-const _shutdownHooks: Array<() => void> = [];
 (async () => {
   if (process.env.SUBSCRIPTION_SLOT_GENERATOR_DISABLED === "true") {
     logger.info("subscription-slot-generator disabled via SUBSCRIPTION_SLOT_GENERATOR_DISABLED");
