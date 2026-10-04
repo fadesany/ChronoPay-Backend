@@ -38,7 +38,7 @@ export class ContractTimeoutError extends AppError {
 }
 
 export class ContractProviderUnavailableError extends AppError {
-  constructor(message = "Contract provider temporarily unavailable") {
+  constructor(message = "Contract provider service unavailable") {
     super(message, 503, "CONTRACT_PROVIDER_UNAVAILABLE", true);
   }
 }
@@ -65,6 +65,19 @@ export function shouldRetryContractError(error: unknown): boolean {
   const text = normalizeErrorText(error);
 
   if (isEthersErrorCode(error, "TIMEOUT") || isEthersErrorCode(error, "NETWORK_ERROR")) {
+    return true;
+  }
+
+  // A 5xx from the provider is retriable by definition. Reading the status off
+  // the error is more reliable than matching status digits in its message text
+  // (e.g. ContractProviderUnavailableError carries 503 but no "503" in text).
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "statusCode" in error &&
+    typeof (error as { statusCode: unknown }).statusCode === "number" &&
+    (error as { statusCode: number }).statusCode >= 500
+  ) {
     return true;
   }
 
