@@ -38,7 +38,7 @@ export class ContractTimeoutError extends AppError {
 }
 
 export class ContractProviderUnavailableError extends AppError {
-  constructor(message = "Contract provider temporarily unavailable") {
+  constructor(message = "Contract provider service unavailable") {
     super(message, 503, "CONTRACT_PROVIDER_UNAVAILABLE", true);
   }
 }

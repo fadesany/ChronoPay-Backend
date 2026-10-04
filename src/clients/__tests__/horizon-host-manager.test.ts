@@ -1,12 +1,11 @@
-// @ts-expect-error - pre-existing NodeNext moduleResolution issue
-import { HorizonHostManager } from "./horizon-host-manager.js";
-// @ts-expect-error - pre-existing NodeNext moduleResolution issue
-import { HorizonUnavailableError, ContractProviderUnavailableError } from "../errors/contractErrors.js";
+import { jest } from "@jest/globals";
+import { HorizonHostManager } from "../horizon-host-manager.js";
+import { HorizonUnavailableError, ContractProviderUnavailableError } from "../../errors/contractErrors.js";
 
 describe("HorizonHostManager", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn();
+    global.fetch = jest.fn() as unknown as typeof fetch;
     Date.now = jest.fn(() => 1000000000); // stable time
   });
 

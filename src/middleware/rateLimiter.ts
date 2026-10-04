@@ -107,26 +107,30 @@ export function createAuthAwareRateLimiter(
   const resolvedWindowMs = windowMs ?? configService.rateLimitWindowMs;
   const resolvedMax = max ?? configService.rateLimitMax;
 
+  const isTestEnv = process.env.NODE_ENV === 'test';
+
   const options: Partial<Options> = {
     windowMs: resolvedWindowMs,
     limit: resolvedMax,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     keyGenerator: generateRateLimitKey,
+    // In test mode, don't use shared store to avoid "store reuse" error.
+    // Rate limiting is skipped via the skip function anyway.
     // @ts-expect-error - Auto-fixed by script
-    store: rateLimitRedisStore,
+    store: isTestEnv ? undefined : rateLimitRedisStore,
     // Skip rate limiting in test environment to avoid flaky tests.
     // Also skip when a valid internal fair-queue bypass has been granted
     // (req.internalBypassActor is set by the fairQueueBypass middleware).
     skip: (req: Request) => {
       if ((req as any).internalBypassActor) return true;
       if ((req as any)._skipRateLimit === false) return false;
-      return process.env.NODE_ENV === 'test';
+      return isTestEnv;
     },
     handler: (_req: Request, res: Response) => {
       res.status(429).json({
         success: false,
-        error: 'Too many requests, please try again later.',
+        error: 'Too many requests, please try later.',
       });
     },
   };
